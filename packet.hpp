@@ -1,0 +1,30 @@
+#include <cstdint>
+
+typedef struct {
+    uint32_t st_l_ax_x        : 7;
+    uint32_t st_l_ax_y        : 7;
+    uint32_t st_r_ax_x        : 7;
+    uint32_t st_r_ax_y        : 7;
+    uint32_t reserved_buttons : 4;
+    uint8_t  trigger_l        : 4;
+    uint8_t  trigger_r        : 4;
+} LoraPayload_t;
+
+typedef struct {
+    uint8_t       addh;
+    uint8_t       addl;
+    uint8_t       channel;
+    uint8_t       payload_len : 5;
+    uint8_t       mode        : 3;
+    LoraPayload_t payload;
+    uint8_t       crc8;
+} LoraTxFrame_t;
+
+typedef struct {
+    uint8_t       payload_len : 5;
+    uint8_t       mode        : 3;
+    LoraPayload_t payload;
+    uint8_t       crc8;
+} LoraRxFrame_t;
+
+#pragma pack(pop)
