@@ -72,47 +72,32 @@ include CMakeFiles/rfbp_test.dir/flags.make
 CMakeFiles/rfbp_test.dir/codegen:
 .PHONY : CMakeFiles/rfbp_test.dir/codegen
 
-CMakeFiles/rfbp_test.dir/main.cpp.o: CMakeFiles/rfbp_test.dir/flags.make
-CMakeFiles/rfbp_test.dir/main.cpp.o: /Users/illiakyselov/rfbp/main.cpp
-CMakeFiles/rfbp_test.dir/main.cpp.o: CMakeFiles/rfbp_test.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/illiakyselov/rfbp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/rfbp_test.dir/main.cpp.o"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/rfbp_test.dir/main.cpp.o -MF CMakeFiles/rfbp_test.dir/main.cpp.o.d -o CMakeFiles/rfbp_test.dir/main.cpp.o -c /Users/illiakyselov/rfbp/main.cpp
+CMakeFiles/rfbp_test.dir/tests/main.cpp.o: CMakeFiles/rfbp_test.dir/flags.make
+CMakeFiles/rfbp_test.dir/tests/main.cpp.o: /Users/illiakyselov/rfbp/tests/main.cpp
+CMakeFiles/rfbp_test.dir/tests/main.cpp.o: CMakeFiles/rfbp_test.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/illiakyselov/rfbp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/rfbp_test.dir/tests/main.cpp.o"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/rfbp_test.dir/tests/main.cpp.o -MF CMakeFiles/rfbp_test.dir/tests/main.cpp.o.d -o CMakeFiles/rfbp_test.dir/tests/main.cpp.o -c /Users/illiakyselov/rfbp/tests/main.cpp
 
-CMakeFiles/rfbp_test.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/rfbp_test.dir/main.cpp.i"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/illiakyselov/rfbp/main.cpp > CMakeFiles/rfbp_test.dir/main.cpp.i
+CMakeFiles/rfbp_test.dir/tests/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/rfbp_test.dir/tests/main.cpp.i"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/illiakyselov/rfbp/tests/main.cpp > CMakeFiles/rfbp_test.dir/tests/main.cpp.i
 
-CMakeFiles/rfbp_test.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/rfbp_test.dir/main.cpp.s"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/illiakyselov/rfbp/main.cpp -o CMakeFiles/rfbp_test.dir/main.cpp.s
-
-CMakeFiles/rfbp_test.dir/packet.cpp.o: CMakeFiles/rfbp_test.dir/flags.make
-CMakeFiles/rfbp_test.dir/packet.cpp.o: /Users/illiakyselov/rfbp/packet.cpp
-CMakeFiles/rfbp_test.dir/packet.cpp.o: CMakeFiles/rfbp_test.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/illiakyselov/rfbp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/rfbp_test.dir/packet.cpp.o"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/rfbp_test.dir/packet.cpp.o -MF CMakeFiles/rfbp_test.dir/packet.cpp.o.d -o CMakeFiles/rfbp_test.dir/packet.cpp.o -c /Users/illiakyselov/rfbp/packet.cpp
-
-CMakeFiles/rfbp_test.dir/packet.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/rfbp_test.dir/packet.cpp.i"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/illiakyselov/rfbp/packet.cpp > CMakeFiles/rfbp_test.dir/packet.cpp.i
-
-CMakeFiles/rfbp_test.dir/packet.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/rfbp_test.dir/packet.cpp.s"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/illiakyselov/rfbp/packet.cpp -o CMakeFiles/rfbp_test.dir/packet.cpp.s
+CMakeFiles/rfbp_test.dir/tests/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/rfbp_test.dir/tests/main.cpp.s"
+	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/illiakyselov/rfbp/tests/main.cpp -o CMakeFiles/rfbp_test.dir/tests/main.cpp.s
 
 # Object files for target rfbp_test
 rfbp_test_OBJECTS = \
-"CMakeFiles/rfbp_test.dir/main.cpp.o" \
-"CMakeFiles/rfbp_test.dir/packet.cpp.o"
+"CMakeFiles/rfbp_test.dir/tests/main.cpp.o"
 
 # External object files for target rfbp_test
 rfbp_test_EXTERNAL_OBJECTS =
 
-rfbp_test: CMakeFiles/rfbp_test.dir/main.cpp.o
-rfbp_test: CMakeFiles/rfbp_test.dir/packet.cpp.o
+rfbp_test: CMakeFiles/rfbp_test.dir/tests/main.cpp.o
 rfbp_test: CMakeFiles/rfbp_test.dir/build.make
+rfbp_test: librfbp.a
 rfbp_test: CMakeFiles/rfbp_test.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/illiakyselov/rfbp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable rfbp_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/illiakyselov/rfbp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable rfbp_test"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/rfbp_test.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -1,1 +1,1 @@
-/usr/bin/clang++ -g -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/rfbp_test.dir/main.cpp.o CMakeFiles/rfbp_test.dir/packet.cpp.o -o rfbp_test
+/usr/bin/clang++ -g -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/rfbp_test.dir/tests/main.cpp.o -o rfbp_test  librfbp.a

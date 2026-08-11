@@ -8,8 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/Users/illiakyselov/rfbp/main.cpp" "CMakeFiles/rfbp_test.dir/main.cpp.o" "gcc" "CMakeFiles/rfbp_test.dir/main.cpp.o.d"
-  "/Users/illiakyselov/rfbp/packet.cpp" "CMakeFiles/rfbp_test.dir/packet.cpp.o" "gcc" "CMakeFiles/rfbp_test.dir/packet.cpp.o.d"
+  "/Users/illiakyselov/rfbp/tests/main.cpp" "CMakeFiles/rfbp_test.dir/tests/main.cpp.o" "gcc" "CMakeFiles/rfbp_test.dir/tests/main.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

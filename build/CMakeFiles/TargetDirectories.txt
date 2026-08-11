@@ -1,3 +1,4 @@
+/Users/illiakyselov/rfbp/build/CMakeFiles/rfbp.dir
 /Users/illiakyselov/rfbp/build/CMakeFiles/rfbp_test.dir
 /Users/illiakyselov/rfbp/build/CMakeFiles/edit_cache.dir
 /Users/illiakyselov/rfbp/build/CMakeFiles/rebuild_cache.dir

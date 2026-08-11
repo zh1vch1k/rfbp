@@ -5,7 +5,15 @@ project(RFBP LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(rfbp_test
-main.cpp
-packet.hpp
-packet.cpp)
+add_library(rfbp STATIC
+    src/packet.cpp
+)
+
+target_include_directories(rfbp PUBLIC lib)
+
+option(BUILD_TESTS "Built tests for RFBP" ON)
+
+IF(BUILD_TESTS)
+add_executable(rfbp_test tests/main.cpp)
+    target_link_libraries(rfbp_test PRIVATE rfbp)
+endif()

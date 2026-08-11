@@ -1,8 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/rfbp_test.dir/main.cpp.o"
-  "CMakeFiles/rfbp_test.dir/main.cpp.o.d"
-  "CMakeFiles/rfbp_test.dir/packet.cpp.o"
-  "CMakeFiles/rfbp_test.dir/packet.cpp.o.d"
+  "CMakeFiles/rfbp_test.dir/tests/main.cpp.o"
+  "CMakeFiles/rfbp_test.dir/tests/main.cpp.o.d"
   "rfbp_test"
   "rfbp_test.pdb"
 )

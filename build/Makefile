@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named rfbp
+
+# Build rule for target.
+rfbp: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 rfbp
+.PHONY : rfbp
+
+# fast build rule for target.
+rfbp/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp.dir/build.make CMakeFiles/rfbp.dir/build
+.PHONY : rfbp/fast
+
+#=============================================================================
 # Target rules for targets named rfbp_test
 
 # Build rule for target.
@@ -129,53 +142,53 @@ rfbp_test/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp_test.dir/build.make CMakeFiles/rfbp_test.dir/build
 .PHONY : rfbp_test/fast
 
-main.o: main.cpp.o
-.PHONY : main.o
+src/packet.o: src/packet.cpp.o
+.PHONY : src/packet.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp_test.dir/build.make CMakeFiles/rfbp_test.dir/main.cpp.o
-.PHONY : main.cpp.o
+src/packet.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp.dir/build.make CMakeFiles/rfbp.dir/src/packet.cpp.o
+.PHONY : src/packet.cpp.o
 
-main.i: main.cpp.i
-.PHONY : main.i
+src/packet.i: src/packet.cpp.i
+.PHONY : src/packet.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp_test.dir/build.make CMakeFiles/rfbp_test.dir/main.cpp.i
-.PHONY : main.cpp.i
+src/packet.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp.dir/build.make CMakeFiles/rfbp.dir/src/packet.cpp.i
+.PHONY : src/packet.cpp.i
 
-main.s: main.cpp.s
-.PHONY : main.s
+src/packet.s: src/packet.cpp.s
+.PHONY : src/packet.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp_test.dir/build.make CMakeFiles/rfbp_test.dir/main.cpp.s
-.PHONY : main.cpp.s
+src/packet.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp.dir/build.make CMakeFiles/rfbp.dir/src/packet.cpp.s
+.PHONY : src/packet.cpp.s
 
-packet.o: packet.cpp.o
-.PHONY : packet.o
+tests/main.o: tests/main.cpp.o
+.PHONY : tests/main.o
 
 # target to build an object file
-packet.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp_test.dir/build.make CMakeFiles/rfbp_test.dir/packet.cpp.o
-.PHONY : packet.cpp.o
+tests/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp_test.dir/build.make CMakeFiles/rfbp_test.dir/tests/main.cpp.o
+.PHONY : tests/main.cpp.o
 
-packet.i: packet.cpp.i
-.PHONY : packet.i
+tests/main.i: tests/main.cpp.i
+.PHONY : tests/main.i
 
 # target to preprocess a source file
-packet.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp_test.dir/build.make CMakeFiles/rfbp_test.dir/packet.cpp.i
-.PHONY : packet.cpp.i
+tests/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp_test.dir/build.make CMakeFiles/rfbp_test.dir/tests/main.cpp.i
+.PHONY : tests/main.cpp.i
 
-packet.s: packet.cpp.s
-.PHONY : packet.s
+tests/main.s: tests/main.cpp.s
+.PHONY : tests/main.s
 
 # target to generate assembly for a file
-packet.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp_test.dir/build.make CMakeFiles/rfbp_test.dir/packet.cpp.s
-.PHONY : packet.cpp.s
+tests/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rfbp_test.dir/build.make CMakeFiles/rfbp_test.dir/tests/main.cpp.s
+.PHONY : tests/main.cpp.s
 
 # Help Target
 help:
@@ -185,13 +198,14 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... rfbp"
 	@echo "... rfbp_test"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
-	@echo "... packet.o"
-	@echo "... packet.i"
-	@echo "... packet.s"
+	@echo "... src/packet.o"
+	@echo "... src/packet.i"
+	@echo "... src/packet.s"
+	@echo "... tests/main.o"
+	@echo "... tests/main.i"
+	@echo "... tests/main.s"
 .PHONY : help
 
 

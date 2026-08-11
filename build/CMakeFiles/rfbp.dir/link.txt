@@ -1,0 +1,2 @@
+/usr/bin/ar qc librfbp.a CMakeFiles/rfbp.dir/src/packet.cpp.o
+/usr/bin/ranlib librfbp.a

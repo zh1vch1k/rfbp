@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/clang++
 CXX_DEFINES = 
 
-CXX_INCLUDES = 
+CXX_INCLUDES = -I/Users/illiakyselov/rfbp/lib
 
 CXX_FLAGSarm64 = -g -std=gnu++17 -arch arm64
 
