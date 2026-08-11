@@ -1,0 +1,14 @@
+[
+{
+  "directory": "/Users/illiakyselov/rfbp/build",
+  "command": "/usr/bin/clang++   -g -std=gnu++17 -arch arm64 -o CMakeFiles/rfbp_test.dir/main.cpp.o -c /Users/illiakyselov/rfbp/main.cpp",
+  "file": "/Users/illiakyselov/rfbp/main.cpp",
+  "output": "CMakeFiles/rfbp_test.dir/main.cpp.o"
+},
+{
+  "directory": "/Users/illiakyselov/rfbp/build",
+  "command": "/usr/bin/clang++   -g -std=gnu++17 -arch arm64 -o CMakeFiles/rfbp_test.dir/packet.cpp.o -c /Users/illiakyselov/rfbp/packet.cpp",
+  "file": "/Users/illiakyselov/rfbp/packet.cpp",
+  "output": "CMakeFiles/rfbp_test.dir/packet.cpp.o"
+}
+]

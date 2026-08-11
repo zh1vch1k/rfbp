@@ -7,4 +7,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(rfbp_test
 main.cpp
-packet.hpp)
+packet.hpp
+packet.cpp)
