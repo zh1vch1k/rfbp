@@ -1,5 +1,5 @@
 #include <iostream>
-#include "lib/packet.hpp"
+#include "packet.hpp"
 
 int main() {
     LoraPayload_t tx_payload{};
