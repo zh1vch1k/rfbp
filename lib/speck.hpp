@@ -12,9 +12,10 @@ typedef struct {
 } SpeckContext_t;
 
 typedef struct {
-    uint32_t session_id;
+    const uint32_t session_id;
     uint32_t cnt;
 } SpeckSessionCounter_t;
+
 
 void speck_init(SpeckContext_t *ctx, const uint8_t key[16]);
 
