@@ -2,7 +2,7 @@
 
 ```
                                               █▓▓▒▒░
-v1.0.0                                         ███▓▒▒░
+v1.1.0                                         ███▓▒▒░
 _________________________________________________███▓▓▒▒░                    
 ░░▒▒▓▓██$$$$$$$\  |$$$$$$$\  |$$$$$$$\  |$$$$$$$\ ███▓▓▓▒▒▒░           
 ░░▒▒▓▓██$$  __$$\ |$$  ____| |$$  __$$\ |$$  __$$\ ███▓▓▓▓▓▒▒░
@@ -33,6 +33,7 @@ The library provides simple C++17 primitives to pack controller state into a fix
 | `LoRa channel` | 8 bit | LoRa channel used to open the session |
 | `payload length` | 5 bit | Fixed payload length (fixed per protocol version) |
 | `mode` | 3 bit | Bitmask selecting which system modules are active (camera, drivers, etc.) |
+| `seq_num` | 8 bit | Monotonic packet counter (used for Nonce derivation & replay protection) |
 
 ### Payload
 
@@ -57,7 +58,8 @@ The library provides simple C++17 primitives to pack controller state into a fix
 ```
 ┌───────────────────────────  HEADER ────────────────────────────┐
 │                                                                │
-│ ADDH(8b) │ ADDL(8b) │ channel(8b) │ payload_len(5b) │ mode(3b) │
+│                 ADDH(8b) │ ADDL(8b) │ channel(8b)              │                  
+│          payload_len(5b) │ mode(3b) │ seq_num (8b)             │
 │                                                                │
 ├──────────────────────────── PAYLOAD ───────────────────────────┤
 │                                                                │
@@ -98,12 +100,27 @@ rfbp/
 - `LoraTxFrame_t encodePacket(const LoraPayload_t& payload, uint8_t addh, uint8_t addl, uint8_t channel, uint8_t mode)` — builds a full TX frame and computes its CRC8.
 - `std::optional<LoraRxFrame_t> decodePacket(const uint8_t *rxBuf, uint8_t rxLen)` — parses raw bytes into an `LoraRxFrame_t`, returns `std::nullopt` if the buffer is too short, the declared payload length doesn't match, or the CRC8 doesn't validate.
 
+**Security architecture** 
+
+* **Cipher:** Speck64/128 (NSA lightweight block cipher optimized for microcontrollers).
+* **Mode of Operation:** Counter (CTR) mode — turns the block cipher into an authenticated stream cipher with zero payload padding overhead.
+* **Nonce Derivation:** `uint64_t Nonce = ((uint64_t)session_id << 32) | seq_num`.
+* **Integrity:** Encrypt-then-MAC scheme using CRC8 (`poly = 0x07`). Corrupted packets are discarded prior to any crypto operations.
+
+**Core crypto functions** (`src/speck.c` / `lib/speck.hpp`):
+
+- `void speck_init(SpeckContext_t *ctx, const uint8_t key[16])` — expands a 128-bit master key into 27 32-bit round keys using the Speck key schedule.
+- `void speck_encrypt_block(const SpeckContext_t *ctx, const uint32_t in[2], uint32_t out[2])` — executes 27 rounds of Speck64 block encryption on an input 64-bit block (`in`) and writes the output block to `out`.
+- `void speck_ctr_crypt(const SpeckContext_t *ctx, const SpeckSessionCounter_t *session_cnt, uint8_t *data, size_t len)` — derives a 64-bit Nonce from `session_id` and `cnt`, generates a keystream via `speck_encrypt_block()`, and performs in-place XOR encryption/decryption on arbitrary-length buffer `data`.
+
+
 ## Build & run
 
 ### Requirements
 
 - CMake ≥ 3.12
 - A C++17 compiler (GCC/Clang/MSVC)
+- C99 compiler for Speck core
 
 On Debian/Ubuntu:
 
@@ -170,4 +187,5 @@ RFBP targets remote-control projects (RC vehicles, robotics, etc.) where you nee
 - a small packet size for low-bitrate radio links (LoRa);
 - flexible module enable/disable via `mode`;
 - integrity checking on the receiver side via CRC8.
+- inti-replay and over-the-air payload encryption for embedded control loops.
 
