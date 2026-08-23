@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(RFBP LANGUAGES CXX)
+project(RFBP LANGUAGES C CXX)
+
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(rfbp STATIC
     src/packet.cpp
+    src/speck.c
 )
 
 target_include_directories(rfbp PUBLIC lib)
