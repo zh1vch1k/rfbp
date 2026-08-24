@@ -1,5 +1,5 @@
 #include "key.hpp"
-#include "fsm_handshake.hpp"
+#include "fsm.hpp"
 
 HandshakeTx_t encodeHandshake(uint8_t addh, uint8_t addl, uint8_t channel, uint32_t session_id , uint32_t expected_salt) {
     HandshakeTx_t handshake = {};

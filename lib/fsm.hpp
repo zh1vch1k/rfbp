@@ -7,6 +7,11 @@
 
 #pragma pack(push, 1)
 
+enum class RadioFSM {
+    IDLE = 0,
+    ACTIVE = 1
+};
+
 typedef struct {
     uint8_t       addh;
     uint8_t       addl;
