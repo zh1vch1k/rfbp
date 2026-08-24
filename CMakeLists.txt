@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(rfbp STATIC
     src/packet.cpp
     src/speck.c
+    src/fsm_handshake.cpp
 )
 
 target_include_directories(rfbp PUBLIC lib)
@@ -18,6 +19,6 @@ target_include_directories(rfbp PUBLIC lib)
 option(BUILD_TESTS "Built tests for RFBP" ON)
 
 IF(BUILD_TESTS)
-add_executable(rfbp_test tests/main.cpp)
+    add_executable(rfbp_test tests/main.cpp)
     target_link_libraries(rfbp_test PRIVATE rfbp)
 endif()
