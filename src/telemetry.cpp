@@ -2,11 +2,11 @@
 #include "telemetry.hpp"
 
 
-GNRMC parse_raw_gps(char *raw_gps) { 
+GNRMC_t parse_raw_gps(char *raw_gps) { 
     char *cursor = raw_gps;
     char *token;
     int field_idx = 0;  
-    GNRMC data = {};
+    GNRMC_t data = {};
 
     int lat_sign = 1;
     int lon_sign = 1;

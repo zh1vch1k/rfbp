@@ -16,7 +16,13 @@ typedef struct  __attribute__((__packed__)) {
     uint16_t course_deg_x10;
     uint8_t  status;        
     uint8_t  mode;       
-} GNRMC;
+} GNRMC_t;
 
 
-GNRMC parse_raw_gps(char *raw_gps);
+typedef struct __attribute__((__packed__)){
+    uint16_t bus_voltage_mv; 
+    int16_t  current_ma;    
+    uint8_t  power_w;       
+} CompactPowerTelemetry_t;
+
+GNRMC_t parse_raw_gps(char *raw_gps);
