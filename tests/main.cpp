@@ -4,7 +4,6 @@
 #include "key.hpp"
 
 
-
 int main() {
     SpeckContext_t crypto_ctx = {};
     SpeckSessionCounter_t tx_cnt = {1010, 0};

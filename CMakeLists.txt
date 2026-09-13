@@ -10,8 +10,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(rfbp STATIC
     src/packet.cpp
-    src/speck.c
+    src/speck.cpp
     src/fsm.cpp
+    src/telemetry.cpp
 )
 
 target_include_directories(rfbp PUBLIC lib)

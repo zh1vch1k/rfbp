@@ -1,9 +1,9 @@
 #pragma once
 
-#include <iostream>
 #include <cstdint>
 #include <optional>
 #include "speck.hpp"
+#include "key.hpp"
 
 #pragma pack(push, 1)
 
