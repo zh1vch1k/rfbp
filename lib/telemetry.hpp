@@ -25,4 +25,16 @@ typedef struct __attribute__((__packed__)){
     uint8_t  power_w;       
 } CompactPowerTelemetry_t;
 
+typedef struct __attribute__((__packed__)){
+    uint16_t bus_voltage_mv; 
+    int16_t  current_ma;    
+    uint8_t  power_w;       
+} AccelerometerTelemetry_t;
+
+typedef struct __attribute__((__packed__)) { 
+    GNRMC_t gps_data;
+    CompactPowerTelemetry_t power_data;
+    AccelerometerTelemetry_t accelerometer_data;
+} Telemetry_t;
+
 GNRMC_t parse_raw_gps(char *raw_gps);

@@ -34,7 +34,8 @@ LoraTxFrame_t encodePacket(const LoraPayload_t& payload, uint8_t addh, uint8_t a
     packet.channel = channel;
     packet.payload_len = sizeof(payload);
     packet.mode = mode & 0x07;
-    packet.seq_num = session_cnt->cnt++;
+    packet.seq_num = static_cast<uint8_t>(session_cnt->cnt & 0xFF);
+    session_cnt->cnt++;
     packet.crc8 = crc8;
     
     return packet;
@@ -42,33 +43,44 @@ LoraTxFrame_t encodePacket(const LoraPayload_t& payload, uint8_t addh, uint8_t a
 
 
 std::optional<LoraRxFrame_t> decodePacket(const uint8_t *rxBuf, uint8_t rxLen, 
-                                          const SpeckContext_t *ctx , SpeckSessionCounter_t *session_cnt) {
-    if (rxLen < sizeof(LoraRxFrame_t)) {
+                                          const SpeckContext_t *ctx, SpeckSessionCounter_t *session_cnt) {
+    if (!rxBuf || rxLen < sizeof(LoraRxFrame_t)) {
         return std::nullopt;
     }
-    
+
     const LoraRxFrame_t* packet = reinterpret_cast<const LoraRxFrame_t*>(rxBuf);
-    
     if (packet->payload_len != sizeof(LoraPayload_t)) {
         return std::nullopt;
     }
 
-    const uint8_t* data = reinterpret_cast<const uint8_t*>(&(packet->payload));
-
-    uint8_t crc_payload = CRC8_calc(data, packet->payload_len);
-
+    // 1. СНАЧАЛА проверяем CRC8 от сырых зашифрованных байт
+    const uint8_t* raw_payload = reinterpret_cast<const uint8_t*>(&(packet->payload));
+    uint8_t crc_payload = CRC8_calc(raw_payload, packet->payload_len);
     if (crc_payload != packet->crc8) {
-        return std::nullopt;
+        return std::nullopt; // Пакет побит помехой в эфире
     }
 
     LoraRxFrame_t result = *packet;
 
-    SpeckSessionCounter_t decrypt_session = *session_cnt;
-    decrypt_session.cnt = result.seq_num;
+    // 2. Восстанавливаем 32-битный счётчик из 8-битного seq_num с защитой от переполнения
+    uint8_t expected_seq = static_cast<uint8_t>(session_cnt->cnt & 0xFF);
+    uint8_t diff = static_cast<uint8_t>(result.seq_num - expected_seq);
 
+    // Если разница >= 128 и счетчик уже ненулевой — это устаревший пакет или атака повтора (replay)
+    if (diff >= 128 && session_cnt->cnt > 0) {
+        return std::nullopt;
+    }
+
+    uint32_t target_cnt = session_cnt->cnt + diff;
+
+    SpeckSessionCounter_t decrypt_session;
+    decrypt_session.session_id = session_cnt->session_id;
+    decrypt_session.cnt = target_cnt;
+
+    // 3. Расшифровываем
     uint8_t* dec_data = reinterpret_cast<uint8_t*>(&(result.payload));
-    speck_ctr_crypt(ctx, &decrypt_session, dec_data, sizeof(result.payload));  
-    session_cnt->cnt = result.seq_num;
+    speck_ctr_crypt(ctx, &decrypt_session, dec_data, result.payload_len);  
 
+    session_cnt->cnt = target_cnt + 1;
     return result;
 }

@@ -9,7 +9,8 @@
 
 enum class RadioFSM {
     IDLE = 0,
-    ACTIVE = 1
+    ACTIVE = 1,
+    ERROR = 2
 };
 
 typedef struct {
