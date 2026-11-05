@@ -5,3 +5,5 @@ build/
 !README.md.cache/
 
 .cache/
+__pycache__/
+*.pyc
