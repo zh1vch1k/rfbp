@@ -91,8 +91,10 @@ rfbp/
 │   ├── packet.cpp        # CRC8, encodePacket(), decodePacket() with replay filter
 │   ├── speck.cpp         # Speck64/128 block cipher implementation
 │   └── telemetry.cpp     # Compact NMEA GNRMC string parser
-└── tests/
-    └── main.cpp          # Automated test suite (rollover, packet drop, replay attack)
+├── tests/
+│   └── main.cpp          # Automated test suite (rollover, packet drop, replay attack)
+└── tools/
+    └── visualizer.py     # Interactive Protocol Inspector & Live Telemetry HUD (Pygame)
 ```
 
 **Language:** C++17, header/impl split, zero external dependencies — only the C++ STL (`<cstdint>`, `<optional>`, `<cmath>`, `<algorithm>`).
@@ -202,6 +204,22 @@ Expected output:
 [PASS] Replay packet successfully rejected!
 ALL TESTS PASSED!
 ```
+
+### Interactive Protocol Inspector (Live HUD)
+
+RFBP includes an interactive telemetry & protocol inspector built with Pygame. It visualizes controller normalization, deadzone suppression, 40-bit bit-packing, Speck64/128 CTR encryption, and the exact 8-byte over-the-air frame in real time.
+
+```bash
+pip install pygame
+python3 tools/visualizer.py
+```
+
+**Features:**
+- **Multi-gamepad support:** Auto-detects and adapts **PS DualSense**, **Xbox (XInput)**, and **Generic HID** controllers.
+- **Mouse & Demo fallback:** If no gamepad is plugged in, drag sticks with mouse or press `SPACE` for automated sine-wave simulation.
+- **Live Wire Frame:** Inspect the 8-byte frame byte-by-byte in glowing HEX and color-coded binary bitstream.
+- **Crypto toggle:** Switch between raw plaintext and Speck64/128 ciphertext keystream in real time (`E` key).
+- **Mode selection:** Change system modes on the fly (`1-7` keys).
 
 ## Integration example
 
