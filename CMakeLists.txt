@@ -13,6 +13,7 @@ add_library(rfbp STATIC
     src/speck.cpp
     src/fsm.cpp
     src/telemetry.cpp
+    src/adapter.cpp
 )
 
 target_include_directories(rfbp PUBLIC lib)
