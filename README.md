@@ -2,7 +2,7 @@
 
 ```
                                               █▓▓▒▒░
-v1.2.0                                         ███▓▒▒░
+v1.3.0                                         ███▓▒▒░
 _________________________________________________███▓▓▒▒░                    
 ░░▒▒▓▓██$$$$$$$\  |$$$$$$$\  |$$$$$$$\  |$$$$$$$\ ███▓▓▓▒▒▒░           
 ░░▒▒▓▓██$$  __$$\ |$$  ____| |$$  __$$\ |$$  __$$\ ███▓▓▓▓▓▒▒░
@@ -12,15 +12,15 @@ _________________________________________________███▓▓▒▒░
 ░░▒▒▓▓██$$ |  $$ ||$$ |      |$$ |  $$ ||$$ |      ███▓▓▓▓▓▒▒░
 ░░▒▒▓▓██$$ |  $$ ||$$ |      |$$$$$$$$ ||$$ |     ███▓▓▓▒▒▒░
 ░░▒▒▓▓██\__|__\___|\__|_______\_______/__\__|____███▓▓▒▒░
-                                               ███▓▒▒░
+                                                ███▓▒▒░
                                               █▓▓▒▒░
 ```
 
 ## About
 
-**RFBP (Radio Fast Bitmap Protocol)** is a lightweight, bit-packed binary protocol for sending controller input (sticks, triggers, buttons) over a radio link (LoRa). It's built around a **PS DualSense** controller on the transmitting side and an **STM32/ESP32** microcontroller on the receiving side.
+**RFBP (Radio Fast Bitmap Protocol)** is a lightweight, bit-packed binary protocol for sending controller input (sticks, triggers, buttons) and telemetry over a radio link (LoRa). It features a modular controller input adapter supporting **PS DualSense**, **Xbox (XInput/Series/One)**, and **generic gamepads** on the transmitting side, targeting **STM32/ESP32** microcontrollers on the receiving side.
 
-The library provides simple C++17 primitives to pack controller state into a fixed-size frame, encode it with an address/channel header and a CRC8 checksum, and decode/validate an incoming frame on the receiver.
+The over-the-air radio frame (`LoraRxFrame_t`) is strictly sized at **8 bytes (64 bits)** — matching the block size of the underlying **Speck64/128 CTR** stream cipher for zero-padding authenticated encryption, single-cycle keystream generation, and minimal LoRa Time-on-Air.
 
 ## Packet format
 
@@ -28,32 +28,32 @@ The library provides simple C++17 primitives to pack controller state into a fix
 
 | Field | Size | Description |
 |---|---|---|
-| `LoRa ADDH` | 8 bit | High byte of the LoRa receiver address |
-| `LoRa ADDL` | 8 bit | Low byte of the LoRa receiver address |
-| `LoRa channel` | 8 bit | LoRa channel used to open the session |
-| `payload length` | 5 bit | Fixed payload length (fixed per protocol version) |
-| `mode` | 3 bit | Bitmask selecting which system modules are active (camera, drivers, etc.) |
+| `LoRa ADDH` | 8 bit | High byte of the LoRa receiver address (Tx frame only) |
+| `LoRa ADDL` | 8 bit | Low byte of the LoRa receiver address (Tx frame only) |
+| `LoRa channel` | 8 bit | LoRa channel used to open the session (Tx frame only) |
+| `payload length` | 5 bit | Fixed payload length (5 bytes per protocol specification) |
+| `mode` | 3 bit | Bitmask selecting active system modes (camera, drivers, lights, etc.) |
 | `seq_num` | 8 bit | Monotonic packet counter (used for Nonce derivation & replay protection) |
 
-### Payload
+### Payload (`LoraPayload_t` — 40 bit / 5 bytes)
 
-| Field | Size | Description |
-|---|---|---|
-| `st_l_ax_x` | 7 bit | Left stick, X axis (0–127) |
-| `st_l_ax_y` | 7 bit | Left stick, Y axis (0–127) |
-| `st_r_ax_x` | 7 bit | Right stick, X axis (0–127) |
-| `st_r_ax_y` | 7 bit | Right stick, Y axis (0–127) |
-| `reserved buttons` | 4 bit | Reserved state for 4 buttons (on/off) |
-| `trigger_l` | 4 bit | Left trigger (0–15) |
-| `trigger_r` | 4 bit | Right trigger (0–15) |
+| Field | Size | Range | Description |
+|---|---|---|---|
+| `st_l_ax_x` | 7 bit | 0–127 | Left stick, X axis (neutral: 64) |
+| `st_l_ax_y` | 7 bit | 0–127 | Left stick, Y axis (neutral: 64) |
+| `st_r_ax_x` | 7 bit | 0–127 | Right stick, X axis (neutral: 64) |
+| `st_r_ax_y` | 7 bit | 0–127 | Right stick, Y axis (neutral: 64) |
+| `reserved_buttons` | 4 bit | 0–15 | 4-button bitmask (`L3`, `R3`, `L1/LB`, `R1/RB`) |
+| `trigger_l` | 4 bit | 0–15 | Left trigger (released: 0, fully pressed: 15) |
+| `trigger_r` | 4 bit | 0–15 | Right trigger (released: 0, fully pressed: 15) |
 
-> Designed and tested against a **PS DualSense** controller.
+> Universally normalized via the built-in adapter module for **PS DualSense**, **Xbox**, and **Generic HID** gamepads.
 
 ### Footer
 
 | Field | Size | Description |
 |---|---|---|
-| `CRC packet` | 8 bit | CRC8 checksum of the packet |
+| `CRC8` | 8 bit | Checksum of raw encrypted payload (polynomial `0x07`, Encrypt-then-MAC) |
 
 ```
 ┌───────────────────────────  HEADER ────────────────────────────┐
@@ -77,55 +77,99 @@ The library provides simple C++17 primitives to pack controller state into a fix
 
 ```
 rfbp/
-├── CMakeLists.txt      # build config (static lib + optional test binary)
+├── CMakeLists.txt        # Build config (static library + test binary)
 ├── lib/
-│   └── packet.hpp       # packed structs + function declarations
+│   ├── adapter.hpp       # Controller input adapter (DualSense, Xbox, Generic)
+│   ├── fsm.hpp           # Radio state machine & session handshake frames
+│   ├── key.hpp           # Pre-shared encryption keys & session salts
+│   ├── packet.hpp        # Bit-packed frame structs, CRC8, encode/decode
+│   ├── speck.hpp         # Speck64/128 block cipher & CTR mode interface
+│   └── telemetry.hpp     # GNSS (NMEA GNRMC), power & IMU telemetry structures
 ├── src/
-│   └── packet.cpp        # CRC8, encodePacket(), decodePacket()
+│   ├── adapter.cpp       # Normalization, deadzone suppression & axis scaling
+│   ├── fsm.cpp           # Handshake frame encoding & verification
+│   ├── packet.cpp        # CRC8, encodePacket(), decodePacket() with replay filter
+│   ├── speck.cpp         # Speck64/128 block cipher implementation
+│   └── telemetry.cpp     # Compact NMEA GNRMC string parser
 └── tests/
-    └── main.cpp           # minimal encode/decode smoke test
+    └── main.cpp          # Automated test suite (rollover, packet drop, replay attack)
 ```
 
-**Language:** C++17, header/impl split, no external dependencies — just the STL (`<cstdint>`, `<optional>`).
+**Language:** C++17, header/impl split, zero external dependencies — only the C++ STL (`<cstdint>`, `<optional>`, `<cmath>`, `<algorithm>`).
 
-**Core types** (`lib/packet.hpp`), all `#pragma pack(push, 1)`-packed to match the wire format:
+## Core modules
 
-- `LoraPayload_t` — the bit-packed stick/trigger/button payload described above.
-- `LoraTxFrame_t` — what the transmitter builds: address/channel/mode header + payload + CRC8.
-- `LoraRxFrame_t` — what the receiver parses: mode/payload-len + payload + CRC8 (no address/channel, since those are only needed to open the LoRa session, not part of the over-the-air data frame).
+### 1. Packet encoding & decoding (`lib/packet.hpp`)
 
-**Core functions** (`src/packet.cpp`):
+All structures are `#pragma pack(push, 1)` packed to ensure binary wire portability:
 
-- `uint8_t CRC8_calc(const uint8_t *data, uint8_t dataLength)` — CRC8 with polynomial `0x07`, used to check payload integrity.
-- `LoraTxFrame_t encodePacket(const LoraPayload_t& payload, uint8_t addh, uint8_t addl, uint8_t channel, uint8_t mode)` — builds a full TX frame and computes its CRC8.
-- `std::optional<LoraRxFrame_t> decodePacket(const uint8_t *rxBuf, uint8_t rxLen)` — parses raw bytes into an `LoraRxFrame_t`, returns `std::nullopt` if the buffer is too short, the declared payload length doesn't match, or the CRC8 doesn't validate.
+- `LoraPayload_t` — the 5-byte bit-packed stick/trigger/button payload.
+- `LoraTxFrame_t` — transmitter frame: LoRa routing address (`addh`, `addl`, `channel`), header, encrypted payload, CRC8.
+- `LoraRxFrame_t` — receiver over-the-air frame (strictly **8 bytes / 64 bits**): mode/len byte, `seq_num`, encrypted payload, CRC8.
 
-**Security architecture** 
+```cpp
+uint8_t CRC8_calc(const uint8_t *data, uint8_t dataLength);
 
-* **Cipher:** Speck64/128 (NSA lightweight block cipher optimized for microcontrollers).
-* **Mode of Operation:** Counter (CTR) mode — turns the block cipher into an authenticated stream cipher with zero payload padding overhead.
-* **Nonce Derivation:** `uint64_t Nonce = ((uint64_t)session_id << 32) | seq_num`.
-* **Integrity:** Encrypt-then-MAC scheme using CRC8 (`poly = 0x07`). Corrupted packets are discarded prior to any crypto operations.
+LoraTxFrame_t encodePacket(const LoraPayload_t& payload, uint8_t addh, uint8_t addl, 
+                           uint8_t channel, uint8_t mode,
+                           const SpeckContext_t *ctx, SpeckSessionCounter_t *session_cnt);
 
-**Core crypto functions** (`src/speck.c` / `lib/speck.hpp`):
+std::optional<LoraRxFrame_t> decodePacket(const uint8_t *rxBuf, uint8_t rxLen, 
+                                          const SpeckContext_t *ctx, SpeckSessionCounter_t *session_cnt);
+```
 
-- `void speck_init(SpeckContext_t *ctx, const uint8_t key[16])` — expands a 128-bit master key into 27 32-bit round keys using the Speck key schedule.
-- `void speck_encrypt_block(const SpeckContext_t *ctx, const uint32_t in[2], uint32_t out[2])` — executes 27 rounds of Speck64 block encryption on an input 64-bit block (`in`) and writes the output block to `out`.
-- `void speck_ctr_crypt(const SpeckContext_t *ctx, const SpeckSessionCounter_t *session_cnt, uint8_t *data, size_t len)` — derives a 64-bit Nonce from `session_id` and `cnt`, generates a keystream via `speck_encrypt_block()`, and performs in-place XOR encryption/decryption on arbitrary-length buffer `data`.
+### 2. Controller adapter (`lib/adapter.hpp`)
 
+Normalizes analog axes, applies deadzone filtering before transmission to eliminate stick drift, and maps physical triggers/buttons across controller vendors into `LoraPayload_t`:
+
+```cpp
+namespace rfbp::adapter {
+
+enum class ControllerType : uint8_t {
+    NORMALIZED = 0, // Sticks [-1.0 .. 1.0], triggers [0.0 .. 1.0]
+    DUALSENSE,      // PlayStation: Triggers [-1.0 .. 1.0]
+    XBOX,           // Xbox / XInput: Triggers [0.0 .. 1.0]
+    GENERIC         // Generic HID / Digital trigger buttons
+};
+
+enum class ButtonMask : uint8_t {
+    BTN_L_STICK  = (1 << 0), // L3 / LS click
+    BTN_R_STICK  = (1 << 1), // R3 / RS click
+    BTN_L_BUMPER = (1 << 2), // L1 / LB
+    BTN_R_BUMPER = (1 << 3)  // R1 / RB
+};
+
+LoraPayload_t adapt(const GamepadState& state, const AdapterConfig& config = {});
+
+} // namespace rfbp::adapter
+```
+
+### 3. Security architecture (`lib/speck.hpp`, `src/speck.cpp`)
+
+* **Cipher:** Speck64/128 (NSA lightweight block cipher optimized for 32-bit ARM Cortex-M and RISC-V).
+* **Mode of Operation:** Counter (CTR) mode — stream cipher operation without block padding overhead (5 bytes of plaintext produce exactly 5 bytes of ciphertext).
+* **Nonce Derivation:** `uint64_t Nonce = ((uint64_t)session_id << 32) | cnt`.
+* **Replay Protection & Rollover:** Receiver dynamically reconstructs the 32-bit session counter from the wire 8-bit `seq_num`, dropping stale frames or replays (`diff >= 128`).
+* **Integrity:** Encrypt-then-MAC scheme using CRC8 (`poly = 0x07`). Corrupted frames are discarded before any cryptographic operations.
 
 ## Build & run
 
 ### Requirements
 
 - CMake ≥ 3.12
-- A C++17 compiler (GCC/Clang/MSVC)
+- C++17 compatible compiler (GCC, Clang, or MSVC)
 - C99 compiler for Speck core
 
-On Debian/Ubuntu:
+On Debian / Ubuntu:
 
 ```bash
-sudo apt-get install -y cmake g++
+sudo apt-get install -y cmake build-essential
+```
+
+On macOS (Homebrew):
+
+```bash
+brew install cmake
 ```
 
 ### Build
@@ -133,59 +177,83 @@ sudo apt-get install -y cmake g++
 ```bash
 git clone https://github.com/zh1vch1k/rfbp.git
 cd rfbp
-mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 ```
 
-This produces:
-- `librfbp.a` — the static library (`encodePacket`, `decodePacket`, `CRC8_calc`)
-- `rfbp_test` — the test binary (built by default; disable with `-DBUILD_TESTS=OFF`)
+This generates:
+- `build/librfbp.a` — static library containing packet codecs, cipher, telemetry, and adapter
+- `build/rfbp_test` — automated test binary (disable via `-DBUILD_TESTS=OFF`)
 
-### Run the test
+### Run tests
 
 ```bash
-./rfbp_test
+./build/rfbp_test
 ```
 
 Expected output:
 
-```
-[SUCCESS] Packet decoded!
-Mode: 2
-Stick X: 64
+```text
+--- Test 1: Sequential 600 packets across 8-bit rollover (0..599) ---
+[PASS] 600 packets decoded successfully across rollovers!
+--- Test 2: Packet loss across boundary (drop 3 packets) ---
+[PASS] Packet loss recovery verified! Correctly synchronized to cnt=604
+--- Test 3: Replay attack rejection ---
+[PASS] Replay packet successfully rejected!
+ALL TESTS PASSED!
 ```
 
-### Use as a library
-
-Link `rfbp` into your own CMake target:
+## Integration example
 
 ```cmake
+# CMakeLists.txt of your project
 add_subdirectory(rfbp)
 target_link_libraries(your_target PRIVATE rfbp)
 ```
 
 ```cpp
 #include "packet.hpp"
+#include "adapter.hpp"
+#include "speck.hpp"
+#include "key.hpp"
 
-LoraPayload_t payload{};
-payload.st_l_ax_x = 64;
-payload.trigger_l = 8;
+// 1. Initialize crypto session
+SpeckContext_t crypto_ctx;
+speck_init(&crypto_ctx, RFBP_SECRET_KEY);
+SpeckSessionCounter_t tx_counter = {/*session_id=*/ 0xABCD1234, /*cnt=*/ 0};
 
-LoraTxFrame_t frame = encodePacket(payload, /*addh=*/0x00, /*addl=*/0x01, /*channel=*/0x04, /*mode=*/0x02);
+// 2. Read raw controller state & adapt to RFBP payload
+rfbp::adapter::GamepadState raw_pad{};
+raw_pad.left_x = 0.0f;     // Center
+raw_pad.left_y = 0.75f;    // Forward
+raw_pad.trigger_r = 1.0f;  // Full throttle
 
-// on the receiver, after opening the LoRa session with (addh, addl, channel):
-auto decoded = decodePacket(rx_buffer, rx_len);
-if (decoded) {
-    // decoded->payload.st_l_ax_x, decoded->mode, ...
+rfbp::adapter::AdapterConfig cfg{};
+cfg.type = rfbp::adapter::ControllerType::XBOX;
+cfg.deadzone = 0.08f;      // 8% hardware deadzone
+
+LoraPayload_t payload = rfbp::adapter::adapt(raw_pad, cfg);
+
+// 3. Encode & encrypt frame
+LoraTxFrame_t tx_frame = encodePacket(payload, 
+                                      /*addh=*/ 0x00, /*addl=*/ 0x01, /*channel=*/ 0x17, /*mode=*/ 0x02,
+                                      &crypto_ctx, &tx_counter);
+
+// 4. On receiver (e.g. STM32 / ESP32 receiving 8-byte OTA frame):
+SpeckSessionCounter_t rx_counter = {/*session_id=*/ 0xABCD1234, /*cnt=*/ 0};
+auto rx_frame = decodePacket(rx_buffer, sizeof(LoraRxFrame_t), &crypto_ctx, &rx_counter);
+
+if (rx_frame.has_value()) {
+    uint8_t steer = rx_frame->payload.st_l_ax_x; // 64 (neutral)
+    uint8_t speed = rx_frame->payload.st_l_ax_y;
 }
 ```
 
 ## Use case
 
-RFBP targets remote-control projects (RC vehicles, robotics, etc.) where you need:
-- a small packet size for low-bitrate radio links (LoRa);
-- flexible module enable/disable via `mode`;
-- integrity checking on the receiver side via CRC8.
-- inti-replay and over-the-air payload encryption for embedded control loops.
-
+RFBP targets embedded remote-control systems (UGVs, robotics, drones) requiring:
+- Exact **8-byte over-the-air frames** for low-bitrate radio links (LoRa, FSK, packet radios);
+- Seamless multi-controller support (**DualSense, Xbox, Generic HID**);
+- Hardware deadzone suppression before transmission to eliminate radio noise;
+- Transparent **Speck64/128 CTR** encryption with replay-attack rejection;
+- Fast integrity validation via CRC8.
